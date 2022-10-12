@@ -1,26 +1,24 @@
-import { useStore, actions } from "./store";
+import { Routes, Route } from "react-router-dom";
+import React from 'react';
+import Chat from "./components/Chat/Chat";
+
+import Guest from "./components/Guest/Guest";
+import Controller from "./components/Controller/Controller";
+import UserChat from "./components/UserChat/UserChat";
+const ChatContext = React.createContext();
 function App() {
-  const [state, dispatch] = useStore();
-  const { todo, todoInput } = state;
-  const handleAdd=()=>{
-   dispatch(actions.addTodo(todoInput))
-  }
+
   return (
+    <ChatContext.Provider value={{ color: 'red' }}>
     <div>
-      <h1>Tên:</h1>
-      <input
-        type="text"
-        value={todoInput}
-        placeholder="Enter job..."
-        onChange={(e) => {
-          dispatch(actions.setTodoInput(e.target.value));
-        }}
-      ></input>
-      <button onClick={handleAdd}>Add</button>
-      {todo.map((todoItem,index) =>(
-        <li key={index}>{todoItem}</li>
-      ))}
+      <Routes>
+        <Route path="/" element={<Guest/>} />
+        <Route path="/chat" element={<Chat/>}/>
+        <Route path="/controller" element={<Controller/>}/>
+        <Route path="/user" element={<UserChat/>}/>
+      </Routes>
     </div>
+      </ChatContext.Provider>
   );
 }
 
