@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import styled from "styled-components";
 import aiImage from "../../assets/images/chatai.jpg";
+import baseUrl from "../../utils/baseUrl";
 const StyledTitle = styled.h1`
   color: black;
   font-size: 30px;
@@ -94,15 +95,14 @@ const AIContent = styled.div`
   margin: 0 20px;
 `;
 
-const GuestContent= styled.div`
- height: 50px;
+const GuestContent = styled.div`
+  height: 50px;
   max-width: 300px;
-  background-color: #2374E1;
+  background-color: #2374e1;
   color: #ffffff;
   border-radius: 10px;
   margin: 0 20px;
-  
-`
+`;
 const ChatText = styled.p`
   font-size: 20px;
   font-weight: bold;
@@ -122,48 +122,72 @@ const AIMessage = styled.div`
 const GuestMessage = styled.div`
   display: flex;
   padding: 30px 30px;
-  justify-content:flex-end;
-`
+  justify-content: flex-end;
+`;
 const Chat = () => {
-  const [newchat,setNewChat]=useState("");
-  const [chatlist,setChatList]=useState([{"ai":"Hello"},{"guest":"Who are you?"},{"guest":":D"}])
-  const handleChange=(e) => {
+  const [newchat, setNewChat] = useState("");
+  const [chatlist, setChatList] = useState([
+    { ai: "Hello" },
+    { guest: "Who are you?" },
+    { guest: ":D" },
+  ]);
+  const handleChange = (e) => {
     setNewChat(e.target.value);
-  }
-  const handleClick=()=>{
-    var chat={"guest":newchat}
-    setChatList([...chatlist,chat]);
+  };
+  // const handleClick=()=>{
+  //   var chat={"guest":newchat}
+  //   setChatList([...chatlist,chat]);
+  //   setNewChat("");
+  //   console.log(chatlist);
+  // }
+  const handleClick = async () => {
+    const response = await fetch(baseUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ message: newchat }),
+      crossDomain: true,
+    });
+    const data = await response.json();
+    var chat = { guest: newchat };
+    var chat2 = { ai: data.fulfillmentText };
+    setChatList([...chatlist, chat, chat2]);
     setNewChat("");
-    console.log(chatlist);
-  }
+  };
+  // useEffect(() => {
+  //   console.log(chatlist);
+  //  },[chatlist]);
   return (
     <StyledBackground>
       <ChatBox>
         <StyledImage src={aiImage} />
         <StyledTitle>CHATBOT</StyledTitle>
         <ChatContent>
-          {chatlist.map((item)=>{
-            return(
-            Object.keys(item)[0]==="ai" ? (
+          {chatlist.map((item) => {
+            return Object.keys(item)[0] === "ai" ? (
               <AIMessage>
-              <AIImage src={aiImage} />
-              <AIContent>
-                <ChatText>{Object.values(item)[0]}</ChatText>
-              </AIContent>
-            </AIMessage>
-            ):(<GuestMessage>
-              <GuestContent>
+                <AIImage src={aiImage} />
+                <AIContent>
+                  <ChatText>{Object.values(item)[0]}</ChatText>
+                </AIContent>
+              </AIMessage>
+            ) : (
+              <GuestMessage>
+                <GuestContent>
                   <ChatText>{Object.values(item)[0]}</ChatText>
                 </GuestContent>
               </GuestMessage>
-            )
-            )
+            );
           })}
-            </ChatContent>
+        </ChatContent>
 
-          
         <div>
-          <StyledInput placeholder="Enter Message" onChange={handleChange} value={newchat}/>
+          <StyledInput
+            placeholder="Enter Message"
+            onChange={handleChange}
+            value={newchat}
+          />
           <StyledButton onClick={handleClick}>Send</StyledButton>
         </div>
       </ChatBox>
